@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace photodatabase
 {
-    class Program
+    class Photo
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
     }
 }
