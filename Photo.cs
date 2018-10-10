@@ -13,8 +13,8 @@ namespace photodatabase
         //Pola
         private FileInfo data_;
         private Dictionary<string, int> categories_;
-
-        //Konstruktor bezargumentowy
+               
+        //Konstruktor 
         public Photo(string path)
         {
             data_ = new FileInfo(path);
@@ -26,13 +26,28 @@ namespace photodatabase
         {
             data_ = new FileInfo(path);
             categories_ = new Dictionary<string, int>(categories);
-            
+        }
+        //Zwaraca nazwę pliku
+        public string Name
+        {
+            get { return data_.Name; }
+        }
+        //Zwaraca nazwę ścieżkę do pliku
+        public string FullName
+        {
+            get { return data_.FullName; }
+        }
+
+        //Metoda sprawdzająca czy dane zdjęcie należy do danej kategorii
+        public bool ChechCategory(string category)
+        {
+            return categories_.ContainsKey(category);
         }
 
         //Przeciążony operator ==
         public static bool operator ==(Photo left, Photo right)
         {
-            if (left.data_.FullName == right.data_.FullName)
+            if (left.FullName == right.FullName)
                 return true;
             else
                 return false;
@@ -40,13 +55,36 @@ namespace photodatabase
         //Przeciążony operator !=
         public static bool operator !=(Photo left, Photo right)
         {
-            if (left.data_.FullName != right.data_.FullName)
+            if (left.FullName != right.FullName)
                 return true;
             else
                 return false;
         }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public void DisplayPhoto()
+        {
+            Console.WriteLine("Nazwa zdjęcia: " + Name);
+            Console.WriteLine("Ścieżka do zdjęcia: " + FullName);
+            Console.WriteLine("Kategorie: ");
+            foreach (var item in categories_)
+            {
+                Console.WriteLine(item.Key + " z wagą " + item.Value);
+            }
+        }
 
 
+        //************************************************************
+        //************************************************************
+        //Metody prywatne
 
+      
     }
 }

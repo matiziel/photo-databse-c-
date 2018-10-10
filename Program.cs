@@ -11,18 +11,11 @@ namespace photodatabase
     {
         static void Main(string[] args)
         {
-            Dictionary<string, int> categories = PhotoDatabase.getCategories();
-            foreach (var item in categories)
-            {
-                Console.WriteLine(item.Key+"\t"+item.Value);
-            }
-           // Menu(getAllPhotos(), new PhotoDatabase());
-            Console.WriteLine("Press any key to exit");
-            Console.ReadKey();
+            Menu(getAllPhotos(), new PhotoDatabase());
         }
 
         //Metoda zwracająca tablice zdjęć z folderu startFolder
-        static IEnumerable<FileInfo> getAllPhotos()
+        static FileInfo[] getAllPhotos()
         {
             string startFolder = @"D:\Zdjęcia\base";
             DirectoryInfo dir = new DirectoryInfo(startFolder);
@@ -35,12 +28,21 @@ namespace photodatabase
                 where file.Extension == ".jpg"
                 orderby file.Name
                 select file;
-            return fileQuery;
+            FileInfo[] allFiles = new FileInfo[fileQuery.Count()];
+            int i = 0;
+            foreach (var item in fileQuery) { allFiles[i] = item; ++i; }
+            return allFiles;
         }
 
-        static void Menu(IEnumerable<FileInfo> photos, PhotoDatabase database)
-        {
 
+        static void Menu(FileInfo[] photos, PhotoDatabase database)
+        {
+            database.AddPhoto(photos);
+            database.AddPhoto(photos);
+            database.DisplayAllPhotos();
+            database.DisplayAllCategories();
+            database.RemovePhoto();
+            database.DisplayAllPhotos();
         }
     }
 }
