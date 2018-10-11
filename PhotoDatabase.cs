@@ -9,16 +9,64 @@ namespace photodatabase
 {
     class PhotoDatabase
     {
-        private List<Photo> allPhotos_;
-        private HashSet<string> allCategories_;
-
         //Konstruktor
         public PhotoDatabase()
         {
             allPhotos_ = new List<Photo>();
             allCategories_ = new HashSet<string>();
         }
+        //Metoda wczytująca zdjęcia z pliku
+        public void Read()
+        {
+            StreamReader sr = null;
+            string line, path;
+            int length;
+            Dictionary<string, int> categories = new Dictionary<string, int>();
+            try
+            {
+                sr = new StreamReader(this.path);
+                while ((line = sr.ReadLine()) != null)
+                {
+                    path = line;
+                    length = Convert.ToInt32(sr.ReadLine());
+                    for (int i = 0; i < length; ++i)
+                    {
+                        categories.Add(sr.ReadLine(), Convert.ToInt32(sr.ReadLine()));
+                    }
+                    allPhotos_.Add(new Photo(path, categories));
+                    categories.Clear();
+                }
+                UpdateCategories();
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Odczyt z pliku nie powiódł się.");
+                return;
+            }
+            finally { sr.Close(); }
+        }
+        //Metoda zapisująca zdjęcia do pliku
+        public void Save()
+        {
+            StreamWriter sw = null;
+            try
+            {
+                sw = new StreamWriter(path);
+                foreach (var item in allPhotos_)
+                {
+                    item.SavePhoto(sw);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Zapis do pliku nie powiódł się.");
+                return;
+            }
+            finally { sw.Close(); }
+
+        }
         //Metoda dodająca zdjęcie
         public void AddPhoto(FileInfo[] photos)
         {
@@ -49,6 +97,11 @@ namespace photodatabase
         //Metoda usuwająca zdjęcie
         public void RemovePhoto()
         {
+            if (allPhotos_.Count == 0)
+            {
+                Console.WriteLine("Baza jest pusta.");
+                return;
+            }
             Console.WriteLine("Wpisz nazwę zdjęcia które chcesz usunąć: ");
             foreach (var item in allPhotos_) { Console.WriteLine(item.Name); }
             string name = Console.ReadLine();
@@ -63,6 +116,15 @@ namespace photodatabase
             Console.WriteLine("Nie ma takiego zdjęcia");
         }
         //Metoda wyświetlająca nazwy zdjęć danej kategorii
+        public void RemoveAllPhotos()
+        {
+            if (allPhotos_.Count == 0)
+            {
+                Console.WriteLine("Baza jest pusta.");
+                return;
+            }
+            else allPhotos_.Clear();
+        }
         public void DisplayPhotoByCategory(string category)
         {
             Console.WriteLine("***************************************************");
@@ -71,7 +133,7 @@ namespace photodatabase
                 where file.ChechCategory(category) == true
                 orderby file.Name
                 select file;
-            Console.WriteLine("Zdjęcia kategorii " + category + " :");
+            Console.WriteLine("Zdjęcia kategorii " + category + ":");
             foreach (var item in fileQuery)
             {
                 Console.WriteLine(item.Name);
@@ -82,6 +144,7 @@ namespace photodatabase
         {
             Console.WriteLine("***************************************************");
             Console.WriteLine("Wszystkie zdjęcia: ");
+            Console.WriteLine("***************************************************");
             foreach (var item in allPhotos_)
             {
                 item.DisplayPhoto();
@@ -93,6 +156,7 @@ namespace photodatabase
         {
             Console.WriteLine("***************************************************");
             Console.WriteLine("Wszystkie kategorie: ");
+            Console.WriteLine("***************************************************");
             foreach (var item in allCategories_)
             {
                 Console.WriteLine(item);
@@ -101,7 +165,11 @@ namespace photodatabase
 
         //************************************************************
         //************************************************************
-        //Metody prywatne
+        //Pola i Metody prywatne
+
+        private List<Photo> allPhotos_;
+        private HashSet<string> allCategories_;
+        private string path = @"D:\Informatyka\Programy\C#\photodatabase\photodatabase\file.txt";
 
         //Pobiera kategorie do danego zdjecia, zwraca Dictionary par kategoria + waga
         private Dictionary<string, int> getCategories()
@@ -133,7 +201,6 @@ namespace photodatabase
             } while (value != 0);
             return categories;
         }
-
         //Sprawdza obecność zdjecia o danej ścieżce w bazie
         private bool Contains(string path)
         {
@@ -144,5 +211,17 @@ namespace photodatabase
             }
             return false;
         }
+        //Aktualizuje listę kategorii podczas odczytu z pliku
+        private void UpdateCategories()
+        {
+            foreach (var item in allPhotos_)
+            {
+                foreach (var smallItem in item.GetPhotoCategories())
+                {
+                    allCategories_.Add(smallItem);
+                }
+            }
+        }
+
     }
 }
